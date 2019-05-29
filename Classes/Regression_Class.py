@@ -62,6 +62,51 @@ class Regression:
         return a * X + b
     
     
+    def multi_reg(self, X,Y): 
+        import numpy as np
+        X = np.array(X)
+        Y = np.array(Y)
+        
+        w = np.linalg.solve(np.matmul(X.T, X), np.matmul(X.T, Y ))
+        
+        predictions = np.matmul(X,w)
+        self.X = X
+        self.Y = Y
+        self.predictions = predictions
+        
+        return predictions
+    
+    def univariate_polynomial(self, X, Y):
+        import numpy as np
+        X = np.array(X)
+        Y = np.array(Y)
+        
+        
+        if X.shape != (len(X), 1): 
+            print(X.shape)
+            print("Errors, X must be univariate and of shape ({},1)".format(len(X)))
+        else: pass
+        
+    
+        x = [[1, i, i **2] for i in X]
+        
+        
+        X_poly = np.array(x)
+        
+        
+        w = np.linalg.solve(np.matmul(X_poly.T, X_poly ), np.matmul(X_poly.T, Y)) 
+        
+        
+        predictions = np.matmul(X_poly, w)
+        
+        
+        self.X = X_poly
+        self.Y = Y
+        self.predictions = predictions
+        
+        return predictions
+        
+    
     def plot_preds(self): 
         
         import matplotlib.pyplot as plt
