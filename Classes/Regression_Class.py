@@ -8,12 +8,12 @@ Created on Thu May 23 17:54:55 2019
 
 
 
-class Regression: 
+class LinearRegression: 
     
     def __init__(self): 
         return None
         
-    def one_dim_lr(self, X, Y):
+    def fit(self, X, Y):
         """
             This will fit the the one dimensional linear regression to the data being passed in. 
             
@@ -24,9 +24,6 @@ class Regression:
                 Y:  The One dimensional array of Y values
             
             
-            Returns:
-                
-                Predictions of formula
         """
         import numpy as np
         
@@ -54,82 +51,95 @@ class Regression:
     
         b = (np.mean(Y) * X.dot(X) - np.mean(X)* X.dot(Y)) / denominator
 
+        self.a = a
+        self.b = b
+        
+        return print("Successfully Fit.")
+    
+    
+    def predict(self, X):
+        """
+        Purpose: To utilize the parameters derived to find 
+        
+        
+        """
+        
         self.X = X
-        self.Y = Y
-        self.predictions = a * X +b 
+        return self.a * X + self.b 
         
-        
-        return a * X + b
-    
-    
-    def multi_reg(self, X,Y): 
-        import numpy as np
-        X = np.array(X)
-        Y = np.array(Y)
-        
-        w = np.linalg.solve(np.matmul(X.T, X), np.matmul(X.T, Y ))
-        
-        predictions = np.matmul(X,w)
-        self.X = X
-        self.Y = Y
-        self.predictions = predictions
-        
-        return predictions
-    
-    def univariate_polynomial(self, X, Y):
-        import numpy as np
-        X = np.array(X)
-        Y = np.array(Y)
-        
-        
-        if X.shape != (len(X), 1): 
-            print(X.shape)
-            print("Errors, X must be univariate and of shape ({},1)".format(len(X)))
-        else: pass
-        
-    
-        x = [[1, i, i **2] for i in X]
-        
-        
-        X_poly = np.array(x)
-        
-        
-        w = np.linalg.solve(np.matmul(X_poly.T, X_poly ), np.matmul(X_poly.T, Y)) 
-        
-        
-        predictions = np.matmul(X_poly, w)
-        
-        
-        self.X = X_poly
-        self.Y = Y
-        self.predictions = predictions
-        
-        return predictions
-        
-    
-    def plot_preds(self): 
-        
-        import matplotlib.pyplot as plt
-            
-        plt.scatter(self.X, self.Y)
-        
-        plt.plot(self.X, self.predictions, c = 'red')
-            
-        plt.show()
-        
-    def r_squared(self): 
+
+    def r_squared(self, X, Y): 
         """
         This will compute the R-squared for the fit model. 
         Return R_squared
         """
         import numpy as np
         
+        predictions = self.a * X + self.b 
+        
+        SSres = np.sum([(i-p) ** 2 for i,p in zip(Y, predictions)])
+        
+        SStot = np.sum([(i - np.mean(Y)) ** 2 for i in Y])
+        
+        r_squared = 1 - (SSres/ SStot)
+        print("R_squared:")
+        if r_squared >=0.75: 
+            print("Great Job!: {}".format(r_squared))
+        elif (r_squared >50) and (r_squared < 75): 
+            print("Not bad: {}".format(r_squared))
+        else: 
+            print("Model Needs improvement: {}".format(r_squared))
+            
+            
+        return r_squared     
 
-        #print(np.sum([(i - p) **2 for i,p in zip(self.Y, self.predictions)]))
+
+
+
+
+
+class multiple_regression:
+    
+    
+    
+    def __init__(self):
         
-        SSres = np.sum([(i-p) ** 2 for i,p in zip(self.Y, self.predictions)])
+        return None
+    
+    def fit(self,X,Y):
+        import numpy as np
+        X = np.array(X)
+        Y = np.array(Y)
         
-        SStot = np.sum([(i - np.mean(self.Y)) ** 2 for i in self.Y])
+        w = np.linalg.solve(np.matmul(X.T, X), np.matmul(X.T, Y ))
+        
+        self.w = w
+        
+        return w
+
+    def predict(self, X): 
+        import numpy as np
+        self.X = X
+
+        
+        return np.matmul(X,self.w)
+        
+    
+    def r_squared(self, X, Y): 
+        """
+        This will compute the R-squared for the fit model. 
+        Return R_squared
+        """
+        import numpy as np
+        
+        
+        
+        predictions = np.matmul(X, self.w)
+
+        
+        SSres = np.sum([(i-p) ** 2 for i,p in zip(Y, predictions)])
+        
+        SStot = np.sum([(i - np.mean(Y)) ** 2 for i in Y])
         
         r_squared = 1 - (SSres/ SStot)
         print("R_squared:")
@@ -142,3 +152,255 @@ class Regression:
             
             
         return r_squared
+        
+
+
+
+
+
+
+class Univariate_Polynomial: 
+    
+    def __init__(self): 
+        
+        return None
+    
+    def make_polynomial(self, X, deg): 
+        """
+        Purpose: This function will output a polynomial with one interaction term. Hence Univariate polynomial. 
+        
+        Parameters: 
+            
+            X    = The input Matrix of shape (n, 1)
+            
+            deg  = The degree you wish to create the polynomial 
+        
+        Returns: 
+            
+            Polynomial Data
+        
+        """
+        
+        import numpy as np
+        
+        ## Creating a 
+        n = len(X)
+        data = [np.ones(n).reshape(-1,1)]
+        
+        for d in range(deg):
+            data.append(X**(d+1))
+
+        return np.hstack(data)
+    
+    def fit(self, X, Y): 
+        """
+        Purpose: To solve for w in the regression formula
+        
+        
+        """
+        
+        
+        import numpy as np
+        
+        w = np.linalg.solve(np.matmul(X.T, X), np.matmul(X.T, Y)) 
+    
+        self.w = w
+        
+        return w
+    
+    def predict(self, X): 
+        """
+        Purpose: To predict Yhat from the input X matrix
+        
+        Parameters: 
+            
+            X = The input (n,d) matrix
+            
+        Returns: 
+            
+            Yhat = A (n,1) vector
+            
+            
+        """
+
+        import numpy as np
+        
+        return np.matmul(X, self.w)
+    
+    
+    def r_squared(self, X, Y): 
+        """
+        Purpose: This will compute the R-squared for the fit model. 
+        
+        Parameters: 
+            
+            X = A 
+        
+        Return R_squared
+        """
+        import numpy as np
+        
+        
+        
+        predictions = np.matmul(X, self.w)
+
+        
+        SSres = np.sum([(i-p) ** 2 for i,p in zip(Y, predictions)])
+        
+        SStot = np.sum([(i - np.mean(Y)) ** 2 for i in Y])
+        
+        r_squared = 1 - (SSres/ SStot)
+        print("R_squared:")
+        if r_squared >=0.75: 
+            print("Great Job!: {}".format(r_squared))
+        elif (r_squared >50) and (r_squared < 75): 
+            print("Not bad: {}".format(r_squared))
+        else: 
+            print("Model Needs improvement: {}".format(r_squared))
+            
+            
+        return r_squared
+      
+        
+class RidgeRegression:
+    
+    def __init__(self): 
+        return None
+    
+    def make_univariate_polynomial(self, X, deg): 
+        """
+        Purpose: This function will output a polynomial with one interaction term. Hence Univariate polynomial. 
+        
+        Parameters: 
+            
+            X    = The input Matrix of shape (n, 1)
+            
+            deg  = The degree you wish to create the polynomial 
+        
+        Returns: 
+            
+            Polynomial Data
+        
+        """
+        
+        import numpy as np
+        
+        ## Creating a 
+        n = len(X)
+        data = [np.ones(n).reshape(-1,1)]
+        
+        for d in range(deg):
+            data.append(X**(d+1))
+            
+        self.poly = True   
+
+        return np.hstack(data)
+    
+    
+    
+    def fit(self, X, Y, lambda_):
+        """
+        Purpose: To solve for with an l2 regularization 
+        
+        
+        Parameters: 
+            
+            X = A (n,d) matrix of input features values
+            
+            Y = A (n,1) vector of targets
+
+            lambda_ = This will be the regularization tuner, with increase in lambda, there is increased regularization. 
+            
+        Returns: 
+            
+            weights
+        """        
+        import numpy as np
+        
+        X = np.array(X)
+        Y = np.array(Y)
+        
+        N = len(X)
+        
+        if self.poly != True: 
+            X = np.vstack([np.ones(N)], X)
+        
+
+        w_map = np.linalg.solve(lambda_ * np.identity(X.shape[1]) + np.matmul(X.T, X), np.matmul(X.T, Y))        
+        self.w = w_map 
+        
+                
+        
+        return self.w
+    
+
+    def predict(self, X):
+       """
+       Purpose: This will predict the outputs of the regression 
+       
+       Parameters: 
+           
+           X = A (n,n) matrix of input features
+           
+           
+       Returns: 
+           
+           Predictions
+           
+       """
+        
+        
+       import numpy as np  
+       X = np.array(X)
+      
+       N = len(X)
+       
+       if self.poly != True: 
+           X = np.vstack([np.ones(N)], X)
+       
+       predictions = np.matmul(X, self.w)  
+      
+       return predictions
+
+
+    def r_squared(self, X, Y): 
+        """
+        Purpose: This will compute the R-squared for the fit model. 
+        
+        Parameters: 
+            
+            X = A (n,n) matrix of input features
+            
+            Y = A (n,1) vector of target values
+        
+        Return R_squared
+        """
+        import numpy as np
+        
+        
+        X = np.array(X)
+        
+        N = len(X)
+        
+        if self.poly != True:
+            X = np.vstack([np.ones(N)], X)
+        predictions = np.matmul(X, self.w)
+
+        
+        SSres = np.sum([(i-p) ** 2 for i,p in zip(Y, predictions)])
+        
+        SStot = np.sum([(i - np.mean(Y)) ** 2 for i in Y])
+        
+        r_squared = 1 - (SSres/ SStot)
+        print("R_squared:")
+        if r_squared >=0.75: 
+            print("Great Job!: {}".format(r_squared))
+        elif (r_squared >50) and (r_squared < 75): 
+            print("Not bad: {}".format(r_squared))
+        else: 
+            print("Model Needs improvement: {}".format(r_squared))
+            
+            
+        return r_squared
+      
+      

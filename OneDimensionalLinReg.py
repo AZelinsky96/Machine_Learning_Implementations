@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 
 
 ## This is my class for my regression implementations
-from Classes.Regression_Class import Regression
+import Classes.Regression_Class as RegClass
 from mpl_toolkits.mplot3d import Axes3D
 
         
@@ -242,23 +242,31 @@ def main():
     
 
     
-    ## Defining a Regression object: 
+    ## Defining a linear Regression object: 
     
-    regressor = Regression()
+    regressor = RegClass.LinearRegression()
     
 
     ## performing a linear regression to fit the best values    
-    predictions = regressor.one_dim_lr(X,Y)
+    regressor.fit(X,Y)
     
     
-    ## Plotting the linear regression 
-    regressor.plot_preds()
+    predictions = regressor.predict(X)
+    
+    regressor.r_squared(X,Y)
+    
+    ## Plotting the Linear Regression to the values
     
     
-    regressor.r_squared()
+    plt.figure(figsize = (10,8))
+    plt.scatter(X,Y)
+    plt.plot(X,predictions, c = "r")
     
-    
-    
+    plt.title("Linear Regression for Population over Time")
+    plt.xlabel("Year")
+    plt.ylabel("Population")
+    plt.legend(['Regression', "Y"])
+    plt.show()
     
     
     print("You can see a clear positive trend towards a growth in population as year increases.")
@@ -274,13 +282,19 @@ def main():
     Y = df.iloc[:, 2].values
     
     
-    multi_reg = Regression()
+    multi_reg = RegClass.multiple_regression()
     
     
-    predictions = multi_reg.multi_reg(X,Y)
+    multi_reg.fit(X,Y)
     
-    multi_reg.r_squared()
+    predictions = multi_reg.predict(X)
     
+    
+    multi_reg.r_squared(X,Y)
+
+
+
+        
     ## Performing a 3 dimensional plot 
     
     fig = plt.figure(figsize = (8,5))
@@ -296,17 +310,38 @@ def main():
     print("\nExamining the above plot, we can see that there is a clear trend for increase in GDP as a result of increase in time and population. However, The multi linear regression line we show above does not fit the curve very well. Therefore, a polynomial approach will need to be taken. ")
     
     
+    
+    
+    
     ## Experimenting with polynomial regression: 
     
     print("\n" + "-"*65, "\nExperimenting with Polynomial Regression: GDP as a result of population")
+    
+    
+    
     
     X = df.iloc[:, -1].values.reshape(-1,1)
     Y = df.iloc[:, 2].values.reshape(-1,1)
 
     
     
-    univariate_poly = Regression()
-    predictions = univariate_poly.univariate_polynomial(X,Y)
+    
+    
+    univariate_poly = RegClass.Univariate_Polynomial()
+    
+    
+    
+    X_poly = univariate_poly.make_polynomial(X,2)
+    
+    print("Created the polynomial below: ")
+    print(X_poly[:5])
+    
+    univariate_poly.fit(X_poly, Y)
+    
+    predictions = univariate_poly.predict(X_poly)
+    
+    
+    
     
     
 
@@ -319,10 +354,50 @@ def main():
     plt.ylabel("GDP")
     plt.show()
     
-    univariate_poly.r_squared()
+    univariate_poly.r_squared(X_poly,Y)
     
 
+    ## Playing around with l2 regularization 
     
+    
+    Y[-2] += 15
+    Y[-3] += 18
+    Y[-5] += 21
+
+    plt.scatter(X,Y)
+    
+    
+    poly_overfit = RegClass.Univariate_Polynomial()
+    
+    poly_overfit.fit(X_poly, Y)
+    
+    
+    
+    predictions = poly_overfit.predict(X_poly)
+
+    
+    plt.plot(X, predictions, c = 'r', label = "Outlier")
+
+    poly_l2 = RegClass.RidgeRegression()
+    
+    X_poly = poly_l2.make_univariate_polynomial(X, 2)
+
+    poly_l2.fit(X_poly, Y, 100)
+    
+    
+    predictions = poly_l2.predict(X_poly)
+    
+    
+    plt.plot(X, predictions, c = 'g', label = "Regularized")
+    plt.title("Regularized versus Non-Regularized Polynomial on Univariate Data")
+    plt.xlabel("Population")
+    plt.ylabel("GDP")
+    plt.legend()
+    plt.show()
+    
+    
+    poly_overfit.r_squared(X_poly, Y)
+    poly_l2.r_squared(X_poly, Y)
 if __name__ == "__main__": 
     main()
 
