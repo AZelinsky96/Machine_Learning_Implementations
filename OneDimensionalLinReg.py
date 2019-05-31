@@ -360,9 +360,9 @@ def main():
     ## Playing around with l2 regularization 
     
     
-    Y[-2] += 15
-    Y[-3] += 18
-    Y[-5] += 21
+    #Y[-2] += 15
+    #Y[-3] += 18
+    #Y[-5] += 21
 
     plt.scatter(X,Y)
     
@@ -398,6 +398,8 @@ def main():
     
     poly_overfit.r_squared(X_poly, Y)
     poly_l2.r_squared(X_poly, Y)
+    
+    
 if __name__ == "__main__": 
     main()
 

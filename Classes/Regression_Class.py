@@ -330,7 +330,8 @@ class RidgeRegression:
         self.w = w_map 
         
                 
-        
+        print(w_map.shape)
+        print(X.T.shape)
         return self.w
     
 
@@ -403,4 +404,54 @@ class RidgeRegression:
             
         return r_squared
       
-      
+class lasso_regression: 
+    
+    def __init__(self): 
+        return None
+    
+    
+
+    def fit(self,X,Y, l1_term, learning_rate, steps, plot_rmse = False): 
+        
+        
+        import numpy as np
+        import matplotlib.pyplot as plt
+        
+        X = np.array(X)
+        Y = np.array(Y)
+        
+        w = np.random.randn(X.shape[1])#/ np.sqrt(X.shape[1])
+        w = w.reshape(-1,1)
+
+        cost = []
+        
+        for i in range(steps): 
+            y_hat = X.dot(w)
+            
+            ## Derivative of lr cost J = transpose(X) * delta(Yhat - Y) 
+            delta = y_hat - Y
+            
+            ## performing gradient descent   
+            w = w -  learning_rate * (X.T.dot(delta) + l1_term*np.sign(w)) 
+            
+   
+          
+        if plot_rmse == True: 
+            plt.plot(cost)
+            plt.xlabel("Step")
+            plt.ylabel("RMSE")
+            plt.title("Cost function through gradient descent steps")
+            plt.show()
+        self.w = w
+
+    def predict(self, X): 
+        
+        import numpy as np
+        X = np.array(X)
+        
+        return np.matmul(X, self.w)
+    
+    
+    
+    
+    
