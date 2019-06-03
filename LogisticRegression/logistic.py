@@ -10,7 +10,11 @@ import Regression_Class as RegClass
 
 
 def main():
-    return None
+    ## Loading in the data for the course project
+    df = pd.read_csv("ecommerce_data.csv")
+    ## Printing the dataframe head
+    print(df.head())
 
 
-print(main())
+
+main()
