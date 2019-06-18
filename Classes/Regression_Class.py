@@ -94,10 +94,6 @@ class LinearRegression:
         return r_squared
 
 
-
-
-
-
 class multiple_regression:
 
 
@@ -457,3 +453,107 @@ class Logistic_Regression:
 
     def __init__(self):
         return None
+
+
+
+    def fit(self, X,Y,learning_rate, epoch, plot_optim = False, l2 = False):
+
+        import numpy as np
+        ##  Setting the shapes of the dataframe
+        
+        D = X.shape[1]
+        N = len(X)
+
+        ## Creating N X 1 array and concatenating as a bias term for the N X D Matrix of features
+        ones = np.array([[1] * N]).T
+        Xb = np.concatenate((ones, X), axis = 1)
+
+        ## Randomly initializing the weights
+        w = np.random.randn(D + 1)
+
+        #P_Y_with_X    = sigmoid(np.matmul(Xb, W))
+
+
+        errors = {}
+        preds = self.sigmoid(np.matmul(Xb, w))
+
+
+        for i in range(epoch):
+            if i % 10 == 0:
+                errors[i] = (self.cross_entropy(Y, preds))
+            if l2 == True:
+                lambda_ = input("Enter Float value for lambda: ")
+                try:
+                    lambda_ = int(lambda_)
+                except:
+                    lambda_ = float(lambda_)
+                except:
+                    raise TypeError ("Invalid Entry: {}, you must enter a  numerical value".format(lambda_))
+
+
+                w += learning_rate * (np.matmul((Y - preds).T, Xb) - lambda_ * w)
+
+            preds = self.sigmoid(np.matmul(Xb,w))
+
+        if plot_optim == True:
+            self.plot_grad(errors)
+
+        self.w = w
+
+    def predict(self, X):
+        import numpy as np
+        ##  Setting the shapes of the dataframe
+        D = X.shape[1]
+        N = len(X)
+
+        ## Creating N X 1 array and concatenating as a bias term for the N X D Matrix of features
+        ones = np.array([[1] * N]).T
+        Xb = np.concatenate((ones, X), axis = 1)
+
+        preds = self.sigmoid(np.matmul(Xb, self.w))
+
+        self.preds = preds
+
+        return preds
+
+    @staticmethod
+    def sigmoid(a):
+        """
+        Sigmoid function applied to Linear to output values between 0 and 1
+        """
+        import numpy as np
+        return 1 / (1 + np.exp(-a))
+
+
+    @staticmethod
+    def cross_entropy( Y, preds):
+        """
+        Function for cross entropy
+        """
+        import numpy as np
+        E = 0
+        for i in range(len(Y)):
+
+            if preds[i] == 0:
+                round_ = preds[i] + 0.0001
+            elif preds[i] == 1:
+                round_ = preds[i] - 0.0001
+            else:
+                round_ = preds[i]
+
+            if Y[i] == 1:
+                E -= np.log(round_)
+            else:
+                E -= np.log(1- round_)
+
+        return E
+
+    @staticmethod
+    def plot_grad( errors):
+        import matplotlib.pyplot as plt
+        index_ = errors.keys()
+        plt.plot(index_, errors.values())
+        plt.xlabel("Epochs")
+        plt.ylabel("Error")
+        plt.title("Graph of error in iterations of gradient descent")
+        plt.show()

@@ -4,11 +4,16 @@ import os
 
 import sys
 
+
+import matplotlib.pyplot as plt
+
+
 sys.path.append("/home/zeski/Documents/PythonLessons/MLImplementations/Classes")
 
 import Regression_Class as RegClass
 
 
+np.random.seed(10)
 def min_max(x):
     """
     Implementation of min max scaler to apply to true numerical data. This will scale data between 0 and 1.
@@ -110,51 +115,17 @@ def get_data():
     return X,Y
 
 
-def sigmoid(a):
-    """
-    Sigmoid function applied to Linear to output values between 0 and 1
-    """
-    import numpy as np
-    return 1 / (1 + np.exp(-a))
-
-def forward(X,W,b):
-    """
-    The calculation of sigmoid wrapping linear regression
-
-    """
-    import numpy as np
-    return sigmoid(np.matmul(X, W) + b)
-
-
-def logistic(X,Y):
-    """
-    !!!Implement this inside a class for regression class module!!!
-
-    """
-
-    D = X.shape[1]
-    W = np.random.randn(D)
-    b = 0
-
-    P_Y_with_X    = forward(X,W, b)
-    predictions   = np.round(P_Y_with_X)
-
-    return predictions
-
-
-def error(Y,Preds):
-    """
-    Simple implemention of accuracy. True = 1, False = 0. So mean(Y == Preds) == True / True+False
-    """
-    return np.mean(Y == Preds)
-
 
 def main():
     ## Loading in the data for the course project
     X, Y = get_data()
 
-    preds = logistic(X,Y)
-    print(error(Y, preds))
+    log_reg = RegClass.Logistic_Regression()
+
+    log_reg.fit(X,Y, 0.01, 100, plot_optim = True)
+
+    print(Y, log_reg.predict(X))
+
 
 
 
